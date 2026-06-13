@@ -40,7 +40,7 @@ export default function ParentFees() {
               {fees?.map((fee) => (
                 <TableRow key={fee.id}>
                   <TableCell className="font-medium">{fee.month}</TableCell>
-                  <TableCell>${fee.totalAmount.toLocaleString()}</TableCell>
+                  <TableCell>₹{fee.totalAmount.toLocaleString()}</TableCell>
                   <TableCell>{fee.dueDate ? new Date(fee.dueDate).toLocaleDateString() : '-'}</TableCell>
                   <TableCell><StatusBadge status={fee.status} /></TableCell>
                   <TableCell className="text-right">

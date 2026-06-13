@@ -37,7 +37,7 @@ export default function StudentFees() {
             <CardTitle className="text-primary-foreground/80 font-normal">Total Outstanding Due</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-5xl font-bold mb-6">${totalOutstanding.toLocaleString()}</div>
+            <div className="text-5xl font-bold mb-6">₹{totalOutstanding.toLocaleString()}</div>
             <div className="flex gap-4">
               <Button variant="secondary" size="lg" className="font-bold">
                 Pay Now
@@ -60,19 +60,19 @@ export default function StudentFees() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Hostel Fee</span>
-                    <span className="font-medium">${currentMonthFee.hostelFee}</span>
+                    <span className="font-medium">₹{currentMonthFee.hostelFee}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Mess Charges</span>
-                    <span className="font-medium">${currentMonthFee.messFee}</span>
+                    <span className="font-medium">₹{currentMonthFee.messFee}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Electricity</span>
-                    <span className="font-medium">${currentMonthFee.electricityFee}</span>
+                    <span className="font-medium">₹{currentMonthFee.electricityFee}</span>
                   </div>
                   <div className="pt-2 mt-2 border-t border-border flex justify-between font-bold text-foreground">
                     <span>Total</span>
-                    <span>${currentMonthFee.totalAmount}</span>
+                    <span>₹{currentMonthFee.totalAmount}</span>
                   </div>
                 </div>
               </div>
@@ -100,7 +100,7 @@ export default function StudentFees() {
               {fees?.map((fee) => (
                 <TableRow key={fee.id}>
                   <TableCell className="font-medium">{fee.month}</TableCell>
-                  <TableCell>${fee.totalAmount.toLocaleString()}</TableCell>
+                  <TableCell>₹{fee.totalAmount.toLocaleString()}</TableCell>
                   <TableCell>{fee.dueDate ? new Date(fee.dueDate).toLocaleDateString() : '-'}</TableCell>
                   <TableCell><StatusBadge status={fee.status} /></TableCell>
                   <TableCell className="text-right">

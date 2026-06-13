@@ -41,7 +41,7 @@ export default function AdminFees() {
                 <TableRow key={fee.id}>
                   <TableCell className="font-medium">{fee.studentName}</TableCell>
                   <TableCell>{fee.month}</TableCell>
-                  <TableCell>${fee.totalAmount.toLocaleString()}</TableCell>
+                  <TableCell>₹{fee.totalAmount.toLocaleString()}</TableCell>
                   <TableCell>{fee.dueDate ? new Date(fee.dueDate).toLocaleDateString() : '-'}</TableCell>
                   <TableCell><StatusBadge status={fee.status} /></TableCell>
                 </TableRow>

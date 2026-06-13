@@ -66,9 +66,9 @@ export function Sidebar({ role }: { role: string }) {
   return (
     <div className="flex h-screen w-64 flex-col bg-sidebar border-r border-sidebar-border shadow-xl z-10 sticky top-0">
       <div className="flex h-16 items-center px-6 border-b border-sidebar-border bg-sidebar-primary/5">
-        <div className="flex items-center gap-2 text-primary font-bold text-xl tracking-tight">
-          <Building2 className="h-6 w-6" />
-          <span>HostelOS</span>
+        <div className="flex items-center gap-3 text-primary font-bold tracking-tight">
+          <img src="https://upload.wikimedia.org/wikipedia/en/1/1f/Manipal_University_Jaipur_logo.png" alt="MUJ" className="h-8 w-8 object-contain bg-white rounded-sm p-0.5" />
+          <span className="text-sm leading-tight">Manipal University<br/>Jaipur</span>
         </div>
       </div>
       

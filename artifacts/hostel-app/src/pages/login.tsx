@@ -79,10 +79,10 @@ export default function Login() {
 
       <div className="z-10 w-full max-w-md">
         <div className="flex flex-col items-center mb-8 text-center">
-          <div className="h-16 w-16 bg-primary rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-primary/20">
-            <Building2 className="h-8 w-8 text-primary-foreground" />
+          <div className="h-24 w-24 mb-4 bg-white/10 rounded-2xl p-2 backdrop-blur shadow-xl shadow-primary/20 flex items-center justify-center">
+            <img src="https://upload.wikimedia.org/wikipedia/en/1/1f/Manipal_University_Jaipur_logo.png" alt="Manipal University Jaipur" className="w-full h-full object-contain filter drop-shadow-md" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground mb-2">HostelOS</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Manipal University Jaipur</h1>
           <p className="text-muted-foreground">Intelligent Campus Housing Management</p>
         </div>
 
