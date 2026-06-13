@@ -1,0 +1,2727 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: HostelOS API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: students
+    description: Student management
+  - name: rooms
+    description: Room and block management
+  - name: gate-passes
+    description: Gate pass management
+  - name: leave-requests
+    description: Leave request management
+  - name: complaints
+    description: Complaint management
+  - name: mess
+    description: Mess attendance and menu
+  - name: fees
+    description: Fee and billing management
+  - name: visitors
+    description: Visitor management
+  - name: wardens
+    description: Warden operations
+  - name: admin
+    description: Admin operations
+  - name: announcements
+    description: Announcements
+  - name: dashboard
+    description: Dashboard analytics
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout user
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # Students
+  /students:
+    get:
+      operationId: listStudents
+      tags: [students]
+      summary: List all students
+      parameters:
+        - name: blockId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Create student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "201":
+          description: Student created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{id}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get student by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+    patch:
+      operationId: updateStudent
+      tags: [students]
+      summary: Update student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+      responses:
+        "200":
+          description: Updated student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{id}/wellbeing:
+    get:
+      operationId: getStudentWellbeing
+      tags: [students]
+      summary: Get student wellbeing indicators
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Wellbeing data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WellbeingReport"
+
+  # Rooms & Blocks
+  /blocks:
+    get:
+      operationId: listBlocks
+      tags: [rooms]
+      summary: List all blocks
+      responses:
+        "200":
+          description: List of blocks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Block"
+    post:
+      operationId: createBlock
+      tags: [rooms]
+      summary: Create a block
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockInput"
+      responses:
+        "201":
+          description: Block created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+
+  /blocks/{id}:
+    get:
+      operationId: getBlock
+      tags: [rooms]
+      summary: Get block details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Block details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+
+  /blocks/{id}/health-score:
+    get:
+      operationId: getBlockHealthScore
+      tags: [rooms]
+      summary: Get block health score
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Block health score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockHealthScore"
+
+  /rooms:
+    get:
+      operationId: listRooms
+      tags: [rooms]
+      summary: List rooms
+      parameters:
+        - name: blockId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: List of rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+    post:
+      operationId: createRoom
+      tags: [rooms]
+      summary: Create a room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomInput"
+      responses:
+        "201":
+          description: Room created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+
+  /rooms/{id}:
+    get:
+      operationId: getRoom
+      tags: [rooms]
+      summary: Get room by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Room details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+
+  /room-allocations:
+    get:
+      operationId: listRoomAllocations
+      tags: [rooms]
+      summary: List room allocations
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: roomId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of allocations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoomAllocation"
+    post:
+      operationId: createRoomAllocation
+      tags: [rooms]
+      summary: Allocate student to room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomAllocationInput"
+      responses:
+        "201":
+          description: Allocation created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomAllocation"
+
+  # Gate Passes
+  /gate-passes:
+    get:
+      operationId: listGatePasses
+      tags: [gate-passes]
+      summary: List gate passes
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: List of gate passes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GatePass"
+    post:
+      operationId: createGatePass
+      tags: [gate-passes]
+      summary: Request a gate pass
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GatePassInput"
+      responses:
+        "201":
+          description: Gate pass created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatePass"
+
+  /gate-passes/{id}:
+    get:
+      operationId: getGatePass
+      tags: [gate-passes]
+      summary: Get gate pass
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Gate pass details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatePass"
+    patch:
+      operationId: updateGatePass
+      tags: [gate-passes]
+      summary: Approve/reject gate pass
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GatePassUpdate"
+      responses:
+        "200":
+          description: Updated gate pass
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatePass"
+
+  # Gate Logs
+  /gate-logs:
+    get:
+      operationId: listGateLogs
+      tags: [gate-passes]
+      summary: List gate entry/exit logs
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: date
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Gate logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GateLog"
+    post:
+      operationId: createGateLog
+      tags: [gate-passes]
+      summary: Log gate entry/exit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GateLogInput"
+      responses:
+        "201":
+          description: Log created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GateLog"
+
+  # Leave Requests
+  /leave-requests:
+    get:
+      operationId: listLeaveRequests
+      tags: [leave-requests]
+      summary: List leave requests
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: List of leave requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaveRequest"
+    post:
+      operationId: createLeaveRequest
+      tags: [leave-requests]
+      summary: Submit leave request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveRequestInput"
+      responses:
+        "201":
+          description: Leave request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequest"
+
+  /leave-requests/{id}:
+    get:
+      operationId: getLeaveRequest
+      tags: [leave-requests]
+      summary: Get leave request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Leave request details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequest"
+    patch:
+      operationId: updateLeaveRequest
+      tags: [leave-requests]
+      summary: Approve/reject leave request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveRequestUpdate"
+      responses:
+        "200":
+          description: Updated leave request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequest"
+
+  # Complaints
+  /complaints:
+    get:
+      operationId: listComplaints
+      tags: [complaints]
+      summary: List complaints
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: category
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: blockId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of complaints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Complaint"
+    post:
+      operationId: createComplaint
+      tags: [complaints]
+      summary: Submit a complaint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplaintInput"
+      responses:
+        "201":
+          description: Complaint created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+
+  /complaints/{id}:
+    get:
+      operationId: getComplaint
+      tags: [complaints]
+      summary: Get complaint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Complaint details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+    patch:
+      operationId: updateComplaint
+      tags: [complaints]
+      summary: Update complaint status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplaintUpdate"
+      responses:
+        "200":
+          description: Updated complaint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+
+  /complaints/{id}/messages:
+    get:
+      operationId: getComplaintMessages
+      tags: [complaints]
+      summary: Get complaint thread messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Complaint messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ComplaintMessage"
+    post:
+      operationId: addComplaintMessage
+      tags: [complaints]
+      summary: Add message to complaint thread
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplaintMessageInput"
+      responses:
+        "201":
+          description: Message added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintMessage"
+
+  # Mess
+  /mess/attendance:
+    get:
+      operationId: listMessAttendance
+      tags: [mess]
+      summary: List mess attendance
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: date
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: mealType
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Attendance list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MessAttendance"
+    post:
+      operationId: createMessAttendance
+      tags: [mess]
+      summary: Mark mess attendance (tap-in)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessAttendanceInput"
+      responses:
+        "201":
+          description: Attendance marked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessAttendance"
+
+  /mess/menu:
+    get:
+      operationId: listMessMenus
+      tags: [mess]
+      summary: List mess menus
+      parameters:
+        - name: weekStart
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Menu list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MessMenu"
+    post:
+      operationId: createMessMenu
+      tags: [mess]
+      summary: Create mess menu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessMenuInput"
+      responses:
+        "201":
+          description: Menu created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessMenu"
+
+  /mess/votes:
+    get:
+      operationId: listMenuVotes
+      tags: [mess]
+      summary: List menu votes
+      parameters:
+        - name: weekStart
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Votes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MenuVote"
+    post:
+      operationId: castMenuVote
+      tags: [mess]
+      summary: Cast menu vote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MenuVoteInput"
+      responses:
+        "201":
+          description: Vote cast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MenuVote"
+
+  /mess/headcount:
+    get:
+      operationId: getMessHeadcount
+      tags: [mess]
+      summary: Get real-time mess headcount
+      responses:
+        "200":
+          description: Current headcount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessHeadcount"
+
+  # Fees
+  /fees:
+    get:
+      operationId: listFees
+      tags: [fees]
+      summary: List fee records
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: month
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Fee records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeeRecord"
+    post:
+      operationId: createFeeRecord
+      tags: [fees]
+      summary: Create fee record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeeRecordInput"
+      responses:
+        "201":
+          description: Fee record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeRecord"
+
+  /fees/{id}:
+    get:
+      operationId: getFeeRecord
+      tags: [fees]
+      summary: Get fee record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fee record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeRecord"
+    patch:
+      operationId: updateFeeRecord
+      tags: [fees]
+      summary: Update fee record (mark paid)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeeRecordUpdate"
+      responses:
+        "200":
+          description: Updated fee record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeRecord"
+
+  # Visitors
+  /visitors:
+    get:
+      operationId: listVisitors
+      tags: [visitors]
+      summary: List visitor requests
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Visitor list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitorRequest"
+    post:
+      operationId: createVisitorRequest
+      tags: [visitors]
+      summary: Create visitor request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitorRequestInput"
+      responses:
+        "201":
+          description: Visitor request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorRequest"
+
+  /visitors/{id}:
+    get:
+      operationId: getVisitorRequest
+      tags: [visitors]
+      summary: Get visitor request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Visitor request details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorRequest"
+    patch:
+      operationId: updateVisitorRequest
+      tags: [visitors]
+      summary: Approve/reject visitor request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitorRequestUpdate"
+      responses:
+        "200":
+          description: Updated visitor request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorRequest"
+
+  # Announcements
+  /announcements:
+    get:
+      operationId: listAnnouncements
+      tags: [announcements]
+      summary: List announcements
+      parameters:
+        - name: targetRole
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+    post:
+      operationId: createAnnouncement
+      tags: [announcements]
+      summary: Create announcement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnouncementInput"
+      responses:
+        "201":
+          description: Announcement created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+
+  # Dashboard / Analytics
+  /dashboard/student-summary:
+    get:
+      operationId: getStudentDashboardSummary
+      tags: [dashboard]
+      summary: Get student dashboard summary
+      responses:
+        "200":
+          description: Student dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDashboardSummary"
+
+  /dashboard/warden-summary:
+    get:
+      operationId: getWardenDashboardSummary
+      tags: [dashboard]
+      summary: Get warden dashboard summary
+      responses:
+        "200":
+          description: Warden dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WardenDashboardSummary"
+
+  /dashboard/admin-summary:
+    get:
+      operationId: getAdminDashboardSummary
+      tags: [dashboard]
+      summary: Get admin dashboard summary
+      responses:
+        "200":
+          description: Admin dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboardSummary"
+
+  /dashboard/parent-summary:
+    get:
+      operationId: getParentDashboardSummary
+      tags: [dashboard]
+      summary: Get parent dashboard summary
+      responses:
+        "200":
+          description: Parent dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParentDashboardSummary"
+
+  /dashboard/gate-summary:
+    get:
+      operationId: getGateDashboardSummary
+      tags: [dashboard]
+      summary: Get gate dashboard summary
+      responses:
+        "200":
+          description: Gate summary data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GateDashboardSummary"
+
+  /dashboard/occupancy-stats:
+    get:
+      operationId: getOccupancyStats
+      tags: [dashboard]
+      summary: Get hostel occupancy statistics
+      responses:
+        "200":
+          description: Occupancy stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OccupancyStats"
+
+  /dashboard/complaint-stats:
+    get:
+      operationId: getComplaintStats
+      tags: [dashboard]
+      summary: Get complaint statistics
+      responses:
+        "200":
+          description: Complaint stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintStats"
+
+  /dashboard/fee-stats:
+    get:
+      operationId: getFeeStats
+      tags: [dashboard]
+      summary: Get fee collection statistics
+      responses:
+        "200":
+          description: Fee stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeStats"
+
+  # Wardens
+  /wardens:
+    get:
+      operationId: listWardens
+      tags: [wardens]
+      summary: List all wardens
+      responses:
+        "200":
+          description: Wardens list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Warden"
+    post:
+      operationId: createWarden
+      tags: [wardens]
+      summary: Create warden
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WardenInput"
+      responses:
+        "201":
+          description: Warden created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Warden"
+
+  /wardens/{id}:
+    get:
+      operationId: getWarden
+      tags: [wardens]
+      summary: Get warden
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Warden details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Warden"
+
+  /wardens/{id}/at-risk-students:
+    get:
+      operationId: getAtRiskStudents
+      tags: [wardens]
+      summary: Get students flagged for wellbeing check
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: At-risk student list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AtRiskStudent"
+
+  # Warden Rounds
+  /warden-rounds:
+    get:
+      operationId: listWardenRounds
+      tags: [wardens]
+      summary: List warden round logs
+      parameters:
+        - name: wardenId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: date
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Round logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WardenRound"
+    post:
+      operationId: createWardenRound
+      tags: [wardens]
+      summary: Log warden round (NFC tap)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WardenRoundInput"
+      responses:
+        "201":
+          description: Round logged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WardenRound"
+
+  # Block Survey
+  /block-surveys:
+    get:
+      operationId: listBlockSurveys
+      tags: [wardens]
+      summary: List block surveys
+      parameters:
+        - name: blockId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Block surveys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BlockSurvey"
+    post:
+      operationId: submitBlockSurvey
+      tags: [wardens]
+      summary: Submit block survey response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockSurveyInput"
+      responses:
+        "201":
+          description: Survey submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockSurvey"
+
+  # Appointments
+  /appointments:
+    get:
+      operationId: listAppointments
+      tags: [wardens]
+      summary: List parent-warden appointments
+      parameters:
+        - name: wardenId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Appointments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      operationId: createAppointment
+      tags: [wardens]
+      summary: Book warden appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentInput"
+      responses:
+        "201":
+          description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+
+  /appointments/{id}:
+    patch:
+      operationId: updateAppointment
+      tags: [wardens]
+      summary: Update appointment status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentUpdate"
+      responses:
+        "200":
+          description: Updated appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+
+  # Staff
+  /staff:
+    get:
+      operationId: listStaff
+      tags: [admin]
+      summary: List all staff
+      responses:
+        "200":
+          description: Staff list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffMember"
+    post:
+      operationId: createStaff
+      tags: [admin]
+      summary: Create staff member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffMemberInput"
+      responses:
+        "201":
+          description: Staff created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        role:
+          type: string
+          enum: [student, warden, admin, parent, gate_staff]
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [student, warden, admin, parent, gate_staff]
+        avatar:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    Student:
+      type: object
+      required: [id, userId, roomId, rollNumber, year, department, blockId]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: ["string", "null"]
+        rollNumber:
+          type: string
+        year:
+          type: integer
+        department:
+          type: string
+        roomId:
+          type: ["integer", "null"]
+        roomNumber:
+          type: ["string", "null"]
+        blockId:
+          type: ["integer", "null"]
+        blockName:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        emergencyContact:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, on_leave, vacated]
+        wellbeingScore:
+          type: ["integer", "null"]
+        feeStatus:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    StudentInput:
+      type: object
+      required: [name, email, rollNumber, year, department, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        rollNumber:
+          type: string
+        year:
+          type: integer
+        department:
+          type: string
+        phone:
+          type: string
+        emergencyContact:
+          type: string
+        parentEmail:
+          type: ["string", "null"]
+
+    StudentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        emergencyContact:
+          type: string
+        status:
+          type: string
+
+    WellbeingReport:
+      type: object
+      required: [studentId, score, flags]
+      properties:
+        studentId:
+          type: integer
+        score:
+          type: integer
+        flags:
+          type: array
+          items:
+            type: string
+        messSkips:
+          type: integer
+        lateEntries:
+          type: integer
+        complaintCount:
+          type: integer
+        lastActivity:
+          type: ["string", "null"]
+        trend:
+          type: string
+
+    Block:
+      type: object
+      required: [id, name, totalRooms, occupiedRooms]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        wardenId:
+          type: ["integer", "null"]
+        wardenName:
+          type: ["string", "null"]
+        totalRooms:
+          type: integer
+        occupiedRooms:
+          type: integer
+        totalStudents:
+          type: integer
+        healthScore:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    BlockInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        wardenId:
+          type: ["integer", "null"]
+
+    BlockHealthScore:
+      type: object
+      required: [blockId, overall, complaintResolution, wardenCompliance, feeCollection, messParticipation, maintenanceSla]
+      properties:
+        blockId:
+          type: integer
+        overall:
+          type: integer
+        complaintResolution:
+          type: integer
+        wardenCompliance:
+          type: integer
+        feeCollection:
+          type: integer
+        messParticipation:
+          type: integer
+        maintenanceSla:
+          type: integer
+        trend:
+          type: string
+
+    Room:
+      type: object
+      required: [id, roomNumber, blockId, capacity, currentOccupancy]
+      properties:
+        id:
+          type: integer
+        roomNumber:
+          type: string
+        blockId:
+          type: integer
+        blockName:
+          type: ["string", "null"]
+        floor:
+          type: integer
+        capacity:
+          type: integer
+        currentOccupancy:
+          type: integer
+        status:
+          type: string
+          enum: [available, full, maintenance]
+        amenities:
+          type: array
+          items:
+            type: string
+        students:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              rollNumber:
+                type: string
+
+    RoomInput:
+      type: object
+      required: [roomNumber, blockId, capacity, floor]
+      properties:
+        roomNumber:
+          type: string
+        blockId:
+          type: integer
+        floor:
+          type: integer
+        capacity:
+          type: integer
+        amenities:
+          type: array
+          items:
+            type: string
+
+    RoomAllocation:
+      type: object
+      required: [id, studentId, roomId, allocatedAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        roomId:
+          type: integer
+        roomNumber:
+          type: string
+        blockName:
+          type: string
+        allocatedAt:
+          type: string
+          format: date-time
+        vacatedAt:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+
+    RoomAllocationInput:
+      type: object
+      required: [studentId, roomId]
+      properties:
+        studentId:
+          type: integer
+        roomId:
+          type: integer
+
+    GatePass:
+      type: object
+      required: [id, studentId, destination, purpose, expectedReturn, status]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        destination:
+          type: string
+        purpose:
+          type: string
+        expectedReturn:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, approved, rejected, expired, used]
+        qrCode:
+          type: ["string", "null"]
+        wardenRemarks:
+          type: ["string", "null"]
+        approvedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    GatePassInput:
+      type: object
+      required: [destination, purpose, expectedReturn]
+      properties:
+        destination:
+          type: string
+        purpose:
+          type: string
+        expectedReturn:
+          type: string
+          format: date-time
+
+    GatePassUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected]
+        wardenRemarks:
+          type: string
+
+    GateLog:
+      type: object
+      required: [id, studentId, type, timestamp]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        gatePassId:
+          type: ["integer", "null"]
+        type:
+          type: string
+          enum: [entry, exit]
+        method:
+          type: string
+          enum: [qr, face, manual]
+        timestamp:
+          type: string
+          format: date-time
+        isTailgating:
+          type: boolean
+
+    GateLogInput:
+      type: object
+      required: [studentId, type, method]
+      properties:
+        studentId:
+          type: integer
+        gatePassId:
+          type: ["integer", "null"]
+        type:
+          type: string
+          enum: [entry, exit]
+        method:
+          type: string
+          enum: [qr, face, manual]
+        isTailgating:
+          type: boolean
+
+    LeaveRequest:
+      type: object
+      required: [id, studentId, fromDate, toDate, destination, reason, status]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        fromDate:
+          type: string
+          format: date
+        toDate:
+          type: string
+          format: date
+        destination:
+          type: string
+        reason:
+          type: string
+        emergencyContact:
+          type: string
+        status:
+          type: string
+          enum: [pending, warden_approved, admin_approved, rejected]
+        wardenRemarks:
+          type: ["string", "null"]
+        adminRemarks:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    LeaveRequestInput:
+      type: object
+      required: [fromDate, toDate, destination, reason, emergencyContact]
+      properties:
+        fromDate:
+          type: string
+          format: date
+        toDate:
+          type: string
+          format: date
+        destination:
+          type: string
+        reason:
+          type: string
+        emergencyContact:
+          type: string
+
+    LeaveRequestUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [warden_approved, admin_approved, rejected]
+        wardenRemarks:
+          type: string
+        adminRemarks:
+          type: string
+
+    Complaint:
+      type: object
+      required: [id, studentId, category, description, status, roomNumber]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        category:
+          type: string
+          enum: [plumbing, electrical, furniture, hygiene, other]
+        description:
+          type: string
+        roomNumber:
+          type: string
+        blockId:
+          type: integer
+        photoUrl:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [raised, acknowledged, in_progress, resolved]
+        assignedTo:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high]
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: ["string", "null"]
+        slaHours:
+          type: integer
+        isOverdue:
+          type: boolean
+
+    ComplaintInput:
+      type: object
+      required: [category, description, roomNumber]
+      properties:
+        category:
+          type: string
+          enum: [plumbing, electrical, furniture, hygiene, other]
+        description:
+          type: string
+        roomNumber:
+          type: string
+        photoUrl:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high]
+
+    ComplaintUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [acknowledged, in_progress, resolved]
+        assignedTo:
+          type: string
+
+    ComplaintMessage:
+      type: object
+      required: [id, complaintId, senderId, senderName, senderRole, message, createdAt]
+      properties:
+        id:
+          type: integer
+        complaintId:
+          type: integer
+        senderId:
+          type: integer
+        senderName:
+          type: string
+        senderRole:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ComplaintMessageInput:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    MessAttendance:
+      type: object
+      required: [id, studentId, mealType, date]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        mealType:
+          type: string
+          enum: [breakfast, lunch, dinner]
+        date:
+          type: string
+          format: date
+        tapInTime:
+          type: string
+          format: date-time
+        method:
+          type: string
+          enum: [qr, nfc, manual]
+
+    MessAttendanceInput:
+      type: object
+      required: [studentId, mealType, date, method]
+      properties:
+        studentId:
+          type: integer
+        mealType:
+          type: string
+          enum: [breakfast, lunch, dinner]
+        date:
+          type: string
+          format: date
+        method:
+          type: string
+          enum: [qr, nfc, manual]
+
+    MessMenu:
+      type: object
+      required: [id, weekStart, items]
+      properties:
+        id:
+          type: integer
+        weekStart:
+          type: string
+          format: date
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenuDayItem"
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    MessMenuInput:
+      type: object
+      required: [weekStart, items]
+      properties:
+        weekStart:
+          type: string
+          format: date
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenuDayItem"
+
+    MenuDayItem:
+      type: object
+      required: [day, breakfast, lunch, dinner]
+      properties:
+        day:
+          type: string
+        breakfast:
+          type: string
+        lunch:
+          type: string
+        dinner:
+          type: string
+
+    MenuVote:
+      type: object
+      required: [id, studentId, weekStart, menuItemId, preference]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        weekStart:
+          type: string
+          format: date
+        menuItemId:
+          type: string
+        preference:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    MenuVoteInput:
+      type: object
+      required: [weekStart, menuItemId, preference]
+      properties:
+        weekStart:
+          type: string
+          format: date
+        menuItemId:
+          type: string
+        preference:
+          type: string
+
+    MessHeadcount:
+      type: object
+      required: [currentCount, breakfastCount, lunchCount, dinnerCount, predictedNext30Min]
+      properties:
+        currentCount:
+          type: integer
+        breakfastCount:
+          type: integer
+        lunchCount:
+          type: integer
+        dinnerCount:
+          type: integer
+        predictedNext30Min:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+
+    FeeRecord:
+      type: object
+      required: [id, studentId, month, hostelFee, messFee, electricityFee, totalAmount, status]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        month:
+          type: string
+        hostelFee:
+          type: number
+        messFee:
+          type: number
+        electricityFee:
+          type: number
+        penaltyAmount:
+          type: number
+        totalAmount:
+          type: number
+        paidAmount:
+          type: number
+        status:
+          type: string
+          enum: [pending, partial, paid, overdue]
+        dueDate:
+          type: string
+          format: date
+        paidAt:
+          type: ["string", "null"]
+        receiptUrl:
+          type: ["string", "null"]
+
+    FeeRecordInput:
+      type: object
+      required: [studentId, month, hostelFee, messFee, electricityFee, dueDate]
+      properties:
+        studentId:
+          type: integer
+        month:
+          type: string
+        hostelFee:
+          type: number
+        messFee:
+          type: number
+        electricityFee:
+          type: number
+        penaltyAmount:
+          type: number
+        dueDate:
+          type: string
+          format: date
+
+    FeeRecordUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [partial, paid]
+        paidAmount:
+          type: number
+
+    VisitorRequest:
+      type: object
+      required: [id, studentId, visitorName, relation, purpose, expectedArrival, status]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        visitorName:
+          type: string
+        relation:
+          type: string
+        purpose:
+          type: string
+        visitorPhone:
+          type: string
+        expectedArrival:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, approved, rejected, visited, expired]
+        qrCode:
+          type: ["string", "null"]
+        wardenRemarks:
+          type: ["string", "null"]
+        actualArrival:
+          type: ["string", "null"]
+        actualDeparture:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    VisitorRequestInput:
+      type: object
+      required: [visitorName, relation, purpose, visitorPhone, expectedArrival]
+      properties:
+        visitorName:
+          type: string
+        relation:
+          type: string
+        purpose:
+          type: string
+        visitorPhone:
+          type: string
+        expectedArrival:
+          type: string
+          format: date-time
+
+    VisitorRequestUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected, visited]
+        wardenRemarks:
+          type: string
+
+    Announcement:
+      type: object
+      required: [id, title, content, targetRole, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        targetRole:
+          type: string
+          enum: [all, student, warden, admin, parent, gate_staff]
+        priority:
+          type: string
+          enum: [normal, urgent]
+        createdById:
+          type: integer
+        createdByName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    AnnouncementInput:
+      type: object
+      required: [title, content, targetRole]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        targetRole:
+          type: string
+          enum: [all, student, warden, admin, parent, gate_staff]
+        priority:
+          type: string
+          enum: [normal, urgent]
+
+    Warden:
+      type: object
+      required: [id, userId, name, email, blockId]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        blockId:
+          type: ["integer", "null"]
+        blockName:
+          type: ["string", "null"]
+        roundComplianceRate:
+          type: number
+        avgComplaintResolutionTime:
+          type: number
+        studentSatisfactionScore:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    WardenInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        blockId:
+          type: ["integer", "null"]
+
+    AtRiskStudent:
+      type: object
+      required: [studentId, name, roomNumber, riskLevel, reason, lastActivity]
+      properties:
+        studentId:
+          type: integer
+        name:
+          type: string
+        roomNumber:
+          type: string
+        riskLevel:
+          type: string
+          enum: [low, medium, high]
+        reason:
+          type: string
+        lastActivity:
+          type: ["string", "null"]
+        wellbeingScore:
+          type: integer
+
+    WardenRound:
+      type: object
+      required: [id, wardenId, roomId, timestamp]
+      properties:
+        id:
+          type: integer
+        wardenId:
+          type: integer
+        wardenName:
+          type: string
+        roomId:
+          type: integer
+        roomNumber:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        method:
+          type: string
+          enum: [nfc, manual]
+
+    WardenRoundInput:
+      type: object
+      required: [roomId, method]
+      properties:
+        roomId:
+          type: integer
+        method:
+          type: string
+          enum: [nfc, manual]
+
+    BlockSurvey:
+      type: object
+      required: [id, blockId, studentId, weekStart, safetyScore, cleanlinessScore, comfortScore]
+      properties:
+        id:
+          type: integer
+        blockId:
+          type: integer
+        studentId:
+          type: integer
+        weekStart:
+          type: string
+          format: date
+        safetyScore:
+          type: integer
+        cleanlinessScore:
+          type: integer
+        comfortScore:
+          type: integer
+        overallScore:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    BlockSurveyInput:
+      type: object
+      required: [blockId, weekStart, safetyScore, cleanlinessScore, comfortScore]
+      properties:
+        blockId:
+          type: integer
+        weekStart:
+          type: string
+          format: date
+        safetyScore:
+          type: integer
+          minimum: 1
+          maximum: 5
+        cleanlinessScore:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comfortScore:
+          type: integer
+          minimum: 1
+          maximum: 5
+
+    Appointment:
+      type: object
+      required: [id, wardenId, studentId, requestedBy, scheduledAt, type, status]
+      properties:
+        id:
+          type: integer
+        wardenId:
+          type: integer
+        wardenName:
+          type: string
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        requestedBy:
+          type: integer
+        scheduledAt:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum: [virtual, in_person]
+        status:
+          type: string
+          enum: [pending, confirmed, completed, cancelled]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    AppointmentInput:
+      type: object
+      required: [wardenId, studentId, scheduledAt, type]
+      properties:
+        wardenId:
+          type: integer
+        studentId:
+          type: integer
+        scheduledAt:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum: [virtual, in_person]
+        notes:
+          type: string
+
+    AppointmentUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [confirmed, completed, cancelled]
+        notes:
+          type: string
+
+    StaffMember:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        department:
+          type: string
+        phone:
+          type: ["string", "null"]
+        performanceScore:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    StaffMemberInput:
+      type: object
+      required: [name, email, password, role, department]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+        department:
+          type: string
+        phone:
+          type: string
+
+    StudentDashboardSummary:
+      type: object
+      required: [student, recentActivity, pendingActions]
+      properties:
+        student:
+          $ref: "#/components/schemas/Student"
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+        pendingActions:
+          type: array
+          items:
+            type: string
+        messAttendanceThisWeek:
+          type: integer
+        activePasses:
+          type: integer
+        pendingComplaints:
+          type: integer
+        currentMonthFeeStatus:
+          type: string
+        upcomingLeave:
+          type: ["object", "null"]
+
+    WardenDashboardSummary:
+      type: object
+      required: [blockId, totalStudents, pendingApprovals, atRiskCount, activeComplaints, todayMessCount]
+      properties:
+        blockId:
+          type: integer
+        blockName:
+          type: string
+        totalStudents:
+          type: integer
+        pendingApprovals:
+          type: integer
+        atRiskCount:
+          type: integer
+        activeComplaints:
+          type: integer
+        overdueComplaints:
+          type: integer
+        todayMessCount:
+          type: integer
+        pendingVisitors:
+          type: integer
+        blockSentimentScore:
+          type: number
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+
+    AdminDashboardSummary:
+      type: object
+      required: [totalStudents, totalBlocks, totalRooms, occupancyRate]
+      properties:
+        totalStudents:
+          type: integer
+        totalBlocks:
+          type: integer
+        totalRooms:
+          type: integer
+        occupancyRate:
+          type: number
+        feeCollectionRate:
+          type: number
+        pendingFees:
+          type: number
+        activeComplaints:
+          type: integer
+        resolvedComplaintsThisMonth:
+          type: integer
+        blockHealthScores:
+          type: array
+          items:
+            $ref: "#/components/schemas/BlockHealthScore"
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+
+    ParentDashboardSummary:
+      type: object
+      required: [student, feeStatus, recentLeaves, visitorLog]
+      properties:
+        student:
+          $ref: "#/components/schemas/Student"
+        feeStatus:
+          type: string
+        currentFeeAmount:
+          type: number
+        recentLeaves:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaveRequest"
+        visitorLog:
+          type: array
+          items:
+            $ref: "#/components/schemas/VisitorRequest"
+        messAttendancePercent:
+          type: number
+        gateActivityCount:
+          type: integer
+        lastSeen:
+          type: ["string", "null"]
+
+    GateDashboardSummary:
+      type: object
+      required: [todayEntries, todayExits, currentlyOut, pendingVerifications]
+      properties:
+        todayEntries:
+          type: integer
+        todayExits:
+          type: integer
+        currentlyOut:
+          type: integer
+        pendingVerifications:
+          type: integer
+        tailgatingAlerts:
+          type: integer
+        recentLogs:
+          type: array
+          items:
+            $ref: "#/components/schemas/GateLog"
+        activePasses:
+          type: integer
+
+    OccupancyStats:
+      type: object
+      required: [total, occupied, available, occupancyRate, byBlock]
+      properties:
+        total:
+          type: integer
+        occupied:
+          type: integer
+        available:
+          type: integer
+        occupancyRate:
+          type: number
+        byBlock:
+          type: array
+          items:
+            type: object
+            properties:
+              blockId:
+                type: integer
+              blockName:
+                type: string
+              occupancyRate:
+                type: number
+              total:
+                type: integer
+              occupied:
+                type: integer
+
+    ComplaintStats:
+      type: object
+      required: [total, byStatus, byCategory, avgResolutionHours]
+      properties:
+        total:
+          type: integer
+        byStatus:
+          type: object
+          properties:
+            raised:
+              type: integer
+            acknowledged:
+              type: integer
+            in_progress:
+              type: integer
+            resolved:
+              type: integer
+        byCategory:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+        avgResolutionHours:
+          type: number
+        overdueCount:
+          type: integer
+
+    FeeStats:
+      type: object
+      required: [totalExpected, totalCollected, collectionRate, pendingAmount, overdueCount]
+      properties:
+        totalExpected:
+          type: number
+        totalCollected:
+          type: number
+        collectionRate:
+          type: number
+        pendingAmount:
+          type: number
+        overdueCount:
+          type: integer
+        monthlyTrend:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              collected:
+                type: number
+              expected:
+                type: number
+
+    ActivityItem:
+      type: object
+      required: [id, type, description, timestamp]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        icon:
+          type: ["string", "null"]
