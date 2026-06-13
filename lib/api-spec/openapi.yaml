@@ -848,6 +848,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/MessHeadcount"
 
+  /mess/predict:
+    post:
+      operationId: predictMessWaste
+      tags: [mess]
+      summary: Predict mess waste and attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessPredictionInput"
+      responses:
+        "200":
+          description: Prediction results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessPredictionResponse"
+
   # Fees
   /fees:
     get:
@@ -2089,6 +2108,40 @@ components:
         timestamp:
           type: string
           format: date-time
+
+    MessPredictionInput:
+      type: object
+      required: [date, meal, menu, examWeek, festival, holidayNear, rain]
+      properties:
+        date:
+          type: string
+          format: date
+        meal:
+          type: string
+          enum: [Breakfast, Lunch, Dinner]
+        menu:
+          type: string
+        examWeek:
+          type: boolean
+        festival:
+          type: boolean
+        holidayNear:
+          type: boolean
+        rain:
+          type: boolean
+
+    MessPredictionResponse:
+      type: object
+      required: [attendance, expectedAttendance, preparedFoodKg, wasteKg]
+      properties:
+        attendance:
+          type: integer
+        expectedAttendance:
+          type: integer
+        preparedFoodKg:
+          type: number
+        wasteKg:
+          type: number
 
     FeeRecord:
       type: object

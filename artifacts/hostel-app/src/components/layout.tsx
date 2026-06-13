@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Building2, Users, FileText, Settings, ShieldAlert, CheckSquare,
   Activity, DoorClosed, Mail, LogOut, Home, MessageSquare, Menu, Calendar,
-  CreditCard, PieChart, ShieldCheck, MapPin
+  CreditCard, PieChart, ShieldCheck, MapPin, ChefHat
 } from "lucide-react";
 
 export function Sidebar({ role }: { role: string }) {
@@ -37,6 +37,7 @@ export function Sidebar({ role }: { role: string }) {
       { name: "Visitors", href: "/warden/visitors", icon: Users },
       { name: "Rounds Log", href: "/warden/rounds", icon: ShieldCheck },
       { name: "Appointments", href: "/warden/appointments", icon: Calendar },
+      { name: "Mess Forecast", href: "/warden/mess-forecast", icon: ChefHat },
     ],
     admin: [
       { name: "Dashboard", href: "/admin", icon: PieChart },
@@ -47,6 +48,7 @@ export function Sidebar({ role }: { role: string }) {
       { name: "All Complaints", href: "/admin/complaints", icon: ShieldAlert },
       { name: "Announcements", href: "/admin/announcements", icon: Mail },
       { name: "Reports", href: "/admin/reports", icon: FileText },
+      { name: "Mess Forecast", href: "/admin/mess-forecast", icon: ChefHat },
     ],
     parent: [
       { name: "Overview", href: "/parent", icon: Home },

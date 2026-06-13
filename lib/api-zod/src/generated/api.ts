@@ -789,6 +789,27 @@ export const GetMessHeadcountResponse = zod.object({
 
 
 /**
+ * @summary Predict mess waste and attendance
+ */
+export const PredictMessWasteBody = zod.object({
+  "date": zod.coerce.date(),
+  "meal": zod.enum(['Breakfast', 'Lunch', 'Dinner']),
+  "menu": zod.string(),
+  "examWeek": zod.boolean(),
+  "festival": zod.boolean(),
+  "holidayNear": zod.boolean(),
+  "rain": zod.boolean()
+})
+
+export const PredictMessWasteResponse = zod.object({
+  "attendance": zod.number(),
+  "expectedAttendance": zod.number(),
+  "preparedFoodKg": zod.number(),
+  "wasteKg": zod.number()
+})
+
+
+/**
  * @summary List fee records
  */
 export const ListFeesQueryParams = zod.object({

@@ -569,6 +569,32 @@ export interface MessHeadcount {
   timestamp?: string;
 }
 
+export type MessPredictionInputMeal = typeof MessPredictionInputMeal[keyof typeof MessPredictionInputMeal];
+
+
+export const MessPredictionInputMeal = {
+  Breakfast: 'Breakfast',
+  Lunch: 'Lunch',
+  Dinner: 'Dinner',
+} as const;
+
+export interface MessPredictionInput {
+  date: string;
+  meal: MessPredictionInputMeal;
+  menu: string;
+  examWeek: boolean;
+  festival: boolean;
+  holidayNear: boolean;
+  rain: boolean;
+}
+
+export interface MessPredictionResponse {
+  attendance: number;
+  expectedAttendance: number;
+  preparedFoodKg: number;
+  wasteKg: number;
+}
+
 export type FeeRecordStatus = typeof FeeRecordStatus[keyof typeof FeeRecordStatus];
 
 

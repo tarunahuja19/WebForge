@@ -28,6 +28,7 @@ import WardenLeave from "@/pages/warden/leave";
 import WardenVisitors from "@/pages/warden/visitors";
 import WardenRounds from "@/pages/warden/rounds";
 import WardenAppointments from "@/pages/warden/appointments";
+import MessForecast from "@/pages/warden/mess-forecast";
 
 // Admin
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -110,6 +111,7 @@ function Router() {
       <Route path="/warden/visitors"><ProtectedRoute allowedRole="warden" component={WardenVisitors} /></Route>
       <Route path="/warden/rounds"><ProtectedRoute allowedRole="warden" component={WardenRounds} /></Route>
       <Route path="/warden/appointments"><ProtectedRoute allowedRole="warden" component={WardenAppointments} /></Route>
+      <Route path="/warden/mess-forecast"><ProtectedRoute allowedRole="warden" component={MessForecast} /></Route>
 
       {/* Admin Routes */}
       <Route path="/admin"><ProtectedRoute allowedRole="admin" component={AdminDashboard} /></Route>
@@ -121,6 +123,7 @@ function Router() {
       <Route path="/admin/complaints"><ProtectedRoute allowedRole="admin" component={AdminComplaints} /></Route>
       <Route path="/admin/announcements"><ProtectedRoute allowedRole="admin" component={AdminAnnouncements} /></Route>
       <Route path="/admin/reports"><ProtectedRoute allowedRole="admin" component={AdminReports} /></Route>
+      <Route path="/admin/mess-forecast"><ProtectedRoute allowedRole="admin" component={MessForecast} /></Route>
 
       {/* Parent Routes */}
       <Route path="/parent"><ProtectedRoute allowedRole="parent" component={ParentDashboard} /></Route>

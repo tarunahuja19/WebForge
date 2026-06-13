@@ -77,6 +77,8 @@ import type {
   MessHeadcount,
   MessMenu,
   MessMenuInput,
+  MessPredictionInput,
+  MessPredictionResponse,
   OccupancyStats,
   ParentDashboardSummary,
   Room,
@@ -3235,6 +3237,77 @@ export function useGetMessHeadcount<TData = Awaited<ReturnType<typeof getMessHea
 
 
 
+
+export const getPredictMessWasteUrl = () => {
+
+
+
+
+  return `/api/mess/predict`
+}
+
+/**
+ * @summary Predict mess waste and attendance
+ */
+export const predictMessWaste = async (messPredictionInput: MessPredictionInput, options?: RequestInit): Promise<MessPredictionResponse> => {
+
+  return customFetch<MessPredictionResponse>(getPredictMessWasteUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      messPredictionInput,)
+  }
+);}
+
+
+
+
+export const getPredictMessWasteMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof predictMessWaste>>, TError,{data: BodyType<MessPredictionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof predictMessWaste>>, TError,{data: BodyType<MessPredictionInput>}, TContext> => {
+
+const mutationKey = ['predictMessWaste'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof predictMessWaste>>, {data: BodyType<MessPredictionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  predictMessWaste(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PredictMessWasteMutationResult = NonNullable<Awaited<ReturnType<typeof predictMessWaste>>>
+    export type PredictMessWasteMutationBody = BodyType<MessPredictionInput>
+    export type PredictMessWasteMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Predict mess waste and attendance
+ */
+export const usePredictMessWaste = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof predictMessWaste>>, TError,{data: BodyType<MessPredictionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof predictMessWaste>>,
+        TError,
+        {data: BodyType<MessPredictionInput>},
+        TContext
+      > => {
+      return useMutation(getPredictMessWasteMutationOptions(options));
+    }
 
 export const getListFeesUrl = (params?: ListFeesParams,) => {
   const normalizedParams = new URLSearchParams();

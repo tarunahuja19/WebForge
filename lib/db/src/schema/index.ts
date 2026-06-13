@@ -17,3 +17,5 @@ export * from "./block_surveys";
 export * from "./appointments";
 export * from "./staff";
 export * from "./personality_profiles";
+export * from "./roommate_profiles";
+
