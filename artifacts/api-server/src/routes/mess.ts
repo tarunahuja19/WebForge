@@ -69,4 +69,39 @@ router.get("/headcount", async (_req: Request, res: Response) => {
   });
 });
 
+router.post("/predict", async (req: Request, res: Response) => {
+  try {
+    const { date, meal, menu, examWeek, festival, holidayNear, rain } = req.body;
+    
+    // Call FastAPI endpoint
+    const response = await fetch("http://127.0.0.1:8000/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        date,
+        meal,
+        menu,
+        examWeek,
+        festival,
+        holidayNear,
+        rain,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      res.status(response.status).json({ error: `FastAPI error: ${errorText}` });
+      return;
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error: any) {
+    console.error("Error predicting waste:", error);
+    res.status(500).json({ error: error.message || "Failed to predict waste" });
+  }
+});
+
 export default router;
