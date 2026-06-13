@@ -1,0 +1,44 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import authRouter from "./auth";
+import studentsRouter from "./students";
+import blocksRouter from "./blocks";
+import roomsRouter from "./rooms";
+import { gatePassRouter } from "./gatepasses";
+import { gateLogRouter } from "./gatelogs";
+import leaveRequestsRouter from "./leaverequests";
+import complaintsRouter from "./complaints";
+import messRouter from "./mess";
+import feesRouter from "./fees";
+import visitorsRouter from "./visitors";
+import announcementsRouter from "./announcements";
+import { wardenRouter, wardenRoundRouter, blockSurveyRouter, appointmentRouter } from "./wardens";
+import dashboardRouter from "./dashboard";
+import staffRouter from "./staff";
+import personalityRouter from "./personality";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use("/auth", authRouter);
+router.use("/students", studentsRouter);
+router.use("/blocks", blocksRouter);
+router.use("/rooms", roomsRouter);
+router.use("/room-allocations", roomsRouter);
+router.use("/gate-passes", gatePassRouter);
+router.use("/gate-logs", gateLogRouter);
+router.use("/leave-requests", leaveRequestsRouter);
+router.use("/complaints", complaintsRouter);
+router.use("/mess", messRouter);
+router.use("/fees", feesRouter);
+router.use("/visitors", visitorsRouter);
+router.use("/announcements", announcementsRouter);
+router.use("/wardens", wardenRouter);
+router.use("/warden-rounds", wardenRoundRouter);
+router.use("/block-surveys", blockSurveyRouter);
+router.use("/appointments", appointmentRouter);
+router.use("/dashboard", dashboardRouter);
+router.use("/staff", staffRouter);
+router.use("/personality", personalityRouter);
+
+export default router;
