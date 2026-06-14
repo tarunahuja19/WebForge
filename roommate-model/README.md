@@ -81,16 +81,24 @@ To ensure high-quality matches, different questionnaire answers have different w
 
 ### 1. Cyclical Sleep Cycle Transform
 Representing clock time linearly (e.g. mapping "11:30 PM" to $23.5$ and "12:30 AM" to $0.5$) makes them appear far apart when they are actually close. We project the time onto a unit circle using Sine and Cosine transforms:
-$$\text{Hour} = \text{parseTimeToHour}(\text{sleeping\_time})$$
-$$\text{sleep\_sin} = \sin\left(\frac{2\pi \cdot \text{Hour}}{24}\right) \qquad \text{sleep\_cos} = \cos\left(\frac{2\pi \cdot \text{Hour}}{24}\right)$$
+* **Hour ($H$)**: 
+  $$H = \text{parseTimeToHour}(\text{sleeping-time})$$
+* **Sine feature ($S$)**: 
+  $$S = \sin\left(\frac{2\pi \cdot H}{24}\right)$$
+* **Cosine feature ($C$)**: 
+  $$C = \cos\left(\frac{2\pi \cdot H}{24}\right)$$
 
 ### 2. Weighted Cosine Distance
-Once the vectors $\mathbf{u}$ and $\mathbf{v}$ are formed and multiplied by their feature weights, the similarity engine evaluates the angular difference between them:
-$$d_{\text{cos}}(\mathbf{u}, \mathbf{v}) = 1 - \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2} = 1 - \frac{\sum_{i=1}^{D} u_i v_i}{\sqrt{\sum_{i=1}^{D} u_i^2} \sqrt{\sum_{i=1}^{D} v_i^2}}$$
+Once the vectors $\mathbf{u}$ and $\mathbf{v}$ are formed and multiplied by their feature weights, the similarity engine evaluates the angular difference (Cosine Distance) between them:
+$$d(\mathbf{u}, \mathbf{v}) = 1 - \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}$$
+
+Where:
+* Dot product: $\mathbf{u} \cdot \mathbf{v} = u_1 v_1 + u_2 v_2 + \dots + u_D v_D$
+* L2 Norm: $\|\mathbf{u}\|_2 = \sqrt{u_1^2 + u_2^2 + \dots + u_D^2}$
 
 ### 3. Compatibility Percentage
 The user dashboard displays this relationship as a percentage match:
-$$\text{Compatibility (\%)} = \max\left(0, 1 - d_{\text{cos}}\right) \times 100$$
+$$\text{Compatibility (\%)} = \max\left(0, 1 - d(\mathbf{u}, \mathbf{v})\right) \times 100$$
 
 ### 4. Strict Gender Segregation Constraint
 Before running cosine distance, the engine filters the dataset. If the candidate's `gender` does not exactly match the query's `gender`, they are dropped immediately (boys and girls are housed in separate rooms/hostels).
