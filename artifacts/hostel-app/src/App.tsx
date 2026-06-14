@@ -5,6 +5,33 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 import { AppLayout } from "@/components/layout";
+import React from "react";
+
+// Error boundary so crashes show a message instead of black screen
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 32, fontFamily: 'sans-serif', color: '#1a1a1a', background: '#fff', minHeight: '100vh' }}>
+          <h1 style={{ color: '#c0392b' }}>Something went wrong</h1>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13 }}>{this.state.error?.message}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 11, color: '#555' }}>{this.state.error?.stack}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Pages
 import Login from "@/pages/login";
@@ -77,16 +104,17 @@ function ProtectedRoute({ component: Component, allowedRole }: { component: any,
 
 function Router() {
   const { user, role } = useAuth();
+  const [, setLocation] = useLocation();
 
   return (
     <Switch>
       <Route path="/">
         {() => {
           if (user && role) {
-            window.location.href = `/${role}`;
-            return null;
+            setLocation(`/${role === "gate_staff" ? "gate" : role}`);
+          } else {
+            setLocation("/login");
           }
-          window.location.href = "/login";
           return null;
         }}
       </Route>
@@ -143,16 +171,18 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+            <Toaster />
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
