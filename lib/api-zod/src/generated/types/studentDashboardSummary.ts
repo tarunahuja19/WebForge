@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ActivityItem } from './activityItem';
+import type { GatePass } from './gatePass';
 import type { Student } from './student';
 import type { StudentDashboardSummaryUpcomingLeave } from './studentDashboardSummaryUpcomingLeave';
 
@@ -19,4 +20,5 @@ export interface StudentDashboardSummary {
   currentMonthFeeStatus?: string;
   /** @nullable */
   upcomingLeave?: StudentDashboardSummaryUpcomingLeave;
+  activeGatePasses?: GatePass[];
 }

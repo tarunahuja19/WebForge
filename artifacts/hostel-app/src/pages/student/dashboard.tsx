@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Activity, DoorClosed, MapPin, MessageSquare, CreditCard, Calendar, Clock, Bell, Sparkles, Users, Building2, ArrowRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
+import { GatePassCard } from "@/components/GatePassCard";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
@@ -127,10 +128,10 @@ export default function StudentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground capitalize">
-              {summary.feeStatus?.status || 'Unknown'}
+              {summary.currentMonthFeeStatus || 'pending'}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Next due: {summary.feeStatus?.nextDueDate ? new Date(summary.feeStatus.nextDueDate).toLocaleDateString() : 'N/A'}
+              Next due: {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString()}
             </p>
           </CardContent>
         </Card>
@@ -180,30 +181,31 @@ export default function StudentDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <Card className="border-sidebar-border shadow-md">
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                <CardTitle>Active Gate Passes</CardTitle>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <CardTitle>Gate Passes</CardTitle>
+                </div>
+                <Link href="/student/gate-pass">
+                  <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-primary text-xs">
+                    View All <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </Link>
               </div>
-              <CardDescription>Passes approved for today</CardDescription>
+              <CardDescription>Approved & active passes (grey = inactive, green = active with 2hr timer)</CardDescription>
             </CardHeader>
             <CardContent>
               {summary.activeGatePasses && summary.activeGatePasses.length > 0 ? (
                 <div className="space-y-4">
                   {summary.activeGatePasses.map((pass: any) => (
-                    <div key={pass.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
-                      <div className="flex flex-col">
-                        <span className="font-semibold">{pass.destination}</span>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                          <Clock className="h-3 w-3" /> Valid until 10:00 PM
-                        </span>
-                      </div>
-                      <StatusBadge status={pass.status} />
-                    </div>
+                    <GatePassCard key={pass.id} pass={pass} />
                   ))}
                 </div>
               ) : (
                 <div className="py-8 text-center border-2 border-dashed border-border rounded-xl">
-                  <p className="text-muted-foreground">No active gate passes.</p>
+                  <MapPin className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
+                  <p className="text-muted-foreground font-medium">No active gate passes.</p>
+                  <p className="text-xs text-muted-foreground/70 mt-1">Request one from the Gate Pass section.</p>
                 </div>
               )}
             </CardContent>
@@ -227,8 +229,8 @@ export default function StudentDashboard() {
                       <div className="h-1.5 w-1.5 bg-primary-foreground rounded-full"></div>
                     </div>
                     <div className="w-[calc(100%-2.5rem)] md:w-[calc(50%-1.5rem)] ml-4 md:ml-0 p-3 rounded-lg bg-muted/30 border border-border/50">
-                      <p className="text-sm font-medium">{activity.text}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                      <p className="text-sm font-medium">{activity.description}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{new Date(activity.timestamp).toLocaleString()}</p>
                     </div>
                   </div>
                 ))}

@@ -359,10 +359,14 @@ export const ListGatePassesResponseItem = zod.object({
   "destination": zod.string(),
   "purpose": zod.string(),
   "expectedReturn": zod.coerce.date(),
-  "status": zod.enum(['pending', 'approved', 'rejected', 'expired', 'used']),
+  "status": zod.enum(['pending', 'approved', 'rejected', 'expired', 'used', 'active']),
   "qrCode": zod.string().nullish(),
   "wardenRemarks": zod.string().nullish(),
   "approvedAt": zod.string().nullish(),
+  "activatedAt": zod.coerce.date().nullish(),
+  "studentRoll": zod.string().nullish(),
+  "studentRoom": zod.string().nullish(),
+  "studentDept": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional()
 })
 export const ListGatePassesResponse = zod.array(ListGatePassesResponseItem)
@@ -392,10 +396,14 @@ export const GetGatePassResponse = zod.object({
   "destination": zod.string(),
   "purpose": zod.string(),
   "expectedReturn": zod.coerce.date(),
-  "status": zod.enum(['pending', 'approved', 'rejected', 'expired', 'used']),
+  "status": zod.enum(['pending', 'approved', 'rejected', 'expired', 'used', 'active']),
   "qrCode": zod.string().nullish(),
   "wardenRemarks": zod.string().nullish(),
   "approvedAt": zod.string().nullish(),
+  "activatedAt": zod.coerce.date().nullish(),
+  "studentRoll": zod.string().nullish(),
+  "studentRoom": zod.string().nullish(),
+  "studentDept": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional()
 })
 
@@ -408,7 +416,7 @@ export const UpdateGatePassParams = zod.object({
 })
 
 export const UpdateGatePassBody = zod.object({
-  "status": zod.enum(['approved', 'rejected']),
+  "status": zod.enum(['approved', 'rejected', 'active']),
   "wardenRemarks": zod.string().optional()
 })
 
@@ -419,10 +427,14 @@ export const UpdateGatePassResponse = zod.object({
   "destination": zod.string(),
   "purpose": zod.string(),
   "expectedReturn": zod.coerce.date(),
-  "status": zod.enum(['pending', 'approved', 'rejected', 'expired', 'used']),
+  "status": zod.enum(['pending', 'approved', 'rejected', 'expired', 'used', 'active']),
   "qrCode": zod.string().nullish(),
   "wardenRemarks": zod.string().nullish(),
   "approvedAt": zod.string().nullish(),
+  "activatedAt": zod.coerce.date().nullish(),
+  "studentRoll": zod.string().nullish(),
+  "studentRoom": zod.string().nullish(),
+  "studentDept": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional()
 })
 
@@ -1069,7 +1081,24 @@ export const GetStudentDashboardSummaryResponse = zod.object({
   "currentMonthFeeStatus": zod.string().optional(),
   "upcomingLeave": zod.object({
 
-}).passthrough().nullish()
+}).passthrough().nullish(),
+  "activeGatePasses": zod.array(zod.object({
+  "id": zod.number(),
+  "studentId": zod.number(),
+  "studentName": zod.string().optional(),
+  "destination": zod.string(),
+  "purpose": zod.string(),
+  "expectedReturn": zod.coerce.date(),
+  "status": zod.enum(['pending', 'approved', 'rejected', 'expired', 'used', 'active']),
+  "qrCode": zod.string().nullish(),
+  "wardenRemarks": zod.string().nullish(),
+  "approvedAt": zod.string().nullish(),
+  "activatedAt": zod.coerce.date().nullish(),
+  "studentRoll": zod.string().nullish(),
+  "studentRoom": zod.string().nullish(),
+  "studentDept": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})).optional()
 })
 
 

@@ -21,5 +21,13 @@ export interface GatePass {
   wardenRemarks?: string | null;
   /** @nullable */
   approvedAt?: string | null;
+  /** @nullable */
+  activatedAt?: Date | null;
+  /** @nullable */
+  studentRoll?: string | null;
+  /** @nullable */
+  studentRoom?: string | null;
+  /** @nullable */
+  studentDept?: string | null;
   createdAt?: Date;
 }

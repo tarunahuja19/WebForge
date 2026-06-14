@@ -15,4 +15,5 @@ export const GatePassStatus = {
   rejected: 'rejected',
   expired: 'expired',
   used: 'used',
+  active: 'active',
 } as const;

@@ -12,7 +12,7 @@ if (Number.isNaN(port) || port <= 0) {
 
 // Start FastAPI background server
 const currentDir = import.meta.dirname;
-const pythonPath = path.resolve(currentDir, "../../../mess-model/.venv/bin/python");
+const pythonPath = path.resolve(currentDir, process.platform === "win32" ? "../../../mess-model/.venv/Scripts/python.exe" : "../../../mess-model/.venv/bin/python");
 const backendAppPath = path.resolve(currentDir, "../../../backend/app.py");
 
 logger.info({ pythonPath, backendAppPath }, "Launching FastAPI background server");

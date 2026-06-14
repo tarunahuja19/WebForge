@@ -221,6 +221,7 @@ export const GatePassStatus = {
   rejected: 'rejected',
   expired: 'expired',
   used: 'used',
+  active: 'active',
 } as const;
 
 export interface GatePass {
@@ -237,6 +238,14 @@ export interface GatePass {
   wardenRemarks?: string | null;
   /** @nullable */
   approvedAt?: string | null;
+  /** @nullable */
+  activatedAt?: string | null;
+  /** @nullable */
+  studentRoll?: string | null;
+  /** @nullable */
+  studentRoom?: string | null;
+  /** @nullable */
+  studentDept?: string | null;
   createdAt?: string;
 }
 
@@ -252,6 +261,7 @@ export type GatePassUpdateStatus = typeof GatePassUpdateStatus[keyof typeof Gate
 export const GatePassUpdateStatus = {
   approved: 'approved',
   rejected: 'rejected',
+  active: 'active',
 } as const;
 
 export interface GatePassUpdate {
@@ -978,6 +988,7 @@ export interface StudentDashboardSummary {
   currentMonthFeeStatus?: string;
   /** @nullable */
   upcomingLeave?: StudentDashboardSummaryUpcomingLeave;
+  activeGatePasses?: GatePass[];
 }
 
 export interface WardenDashboardSummary {

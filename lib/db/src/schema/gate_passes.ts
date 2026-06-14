@@ -2,7 +2,7 @@ import { pgTable, text, serial, integer, timestamp, pgEnum } from "drizzle-orm/p
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const gatePassStatusEnum = pgEnum("gate_pass_status", ["pending", "approved", "rejected", "expired", "used"]);
+export const gatePassStatusEnum = pgEnum("gate_pass_status", ["pending", "approved", "rejected", "expired", "used", "active"]);
 
 export const gatePassesTable = pgTable("gate_passes", {
   id: serial("id").primaryKey(),
@@ -14,6 +14,7 @@ export const gatePassesTable = pgTable("gate_passes", {
   qrCode: text("qr_code"),
   wardenRemarks: text("warden_remarks"),
   approvedAt: timestamp("approved_at", { withTimezone: true }),
+  activatedAt: timestamp("activated_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

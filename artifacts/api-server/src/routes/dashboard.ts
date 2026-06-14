@@ -7,6 +7,25 @@ import {
 } from "@workspace/db";
 import { eq, count } from "drizzle-orm";
 
+async function checkAndExpirePassDash(pass: typeof gatePassesTable.$inferSelect): Promise<typeof gatePassesTable.$inferSelect> {
+  if (pass.status === "active" && pass.activatedAt) {
+    const twoHoursMs = 2 * 60 * 60 * 1000;
+    const elapsed = Date.now() - new Date(pass.activatedAt).getTime();
+    if (elapsed >= twoHoursMs) {
+      const [updated] = await db.update(gatePassesTable).set({ status: "expired" }).where(eq(gatePassesTable.id, pass.id)).returning();
+      return updated ?? pass;
+    }
+  }
+  return pass;
+}
+
+async function enrichGatePassDash(pass: typeof gatePassesTable.$inferSelect) {
+  const [student] = await db.select().from(studentsTable).where(eq(studentsTable.id, pass.studentId)).limit(1);
+  const [user] = student ? await db.select().from(usersTable).where(eq(usersTable.id, student.userId)).limit(1) : [null];
+  const [room] = student?.roomId ? await db.select().from(roomsTable).where(eq(roomsTable.id, student.roomId)).limit(1) : [null];
+  return { ...pass, studentName: user?.name ?? "Unknown", studentRoll: student?.rollNumber ?? null, studentRoom: room?.roomNumber ?? null, studentDept: student?.department ?? null };
+}
+
 const router = Router();
 
 router.get("/student-summary", async (req: Request, res: Response) => {
@@ -18,16 +37,53 @@ router.get("/student-summary", async (req: Request, res: Response) => {
   const fees = await db.select().from(feeRecordsTable).where(eq(feeRecordsTable.studentId, studentId));
   const messThisWeek = await db.select().from(messAttendanceTable).where(eq(messAttendanceTable.studentId, studentId));
   const latestFee = fees[fees.length - 1];
+
+  // Enrich & expire-check active/approved passes for the student dashboard card
+  const relevantPasses = passes.filter(p => p.status === "approved" || p.status === "active");
+  const activeGatePasses = await Promise.all(
+    relevantPasses.map(async (p) => {
+      const checked = await checkAndExpirePassDash(p);
+      return enrichGatePassDash(checked);
+    })
+  );
+
+  const recentActivity: any[] = [];
+  passes.slice(-3).forEach(p => {
+    recentActivity.push({
+      id: `gp-${p.id}`,
+      type: "gate_pass",
+      description: `Gate pass to ${p.destination} (${p.status})`,
+      timestamp: new Date(p.createdAt || Date.now()).toISOString(),
+      icon: "door"
+    });
+  });
+  complaints.slice(-3).forEach(c => {
+    recentActivity.push({
+      id: `c-${c.id}`,
+      type: "complaint",
+      description: `Complaint: ${c.title} (${c.status})`,
+      timestamp: new Date(c.createdAt || Date.now()).toISOString(),
+      icon: "wrench"
+    });
+  });
+  messThisWeek.slice(-3).forEach(m => {
+    recentActivity.push({
+      id: `m-${m.id}`,
+      type: "mess",
+      description: `Tapped in for ${m.mealType}`,
+      timestamp: new Date(m.timestamp || Date.now()).toISOString(),
+      icon: "utensils"
+    });
+  });
+  recentActivity.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
   res.json({
     student: { ...student, name: user?.name ?? "Student", email: user?.email ?? "", avatar: user?.avatar ?? null, phone: user?.phone ?? null, roomNumber: null, blockName: null, feeStatus: latestFee?.status ?? "pending" },
-    recentActivity: [
-      { id: 1, type: "gate_pass", description: "Gate pass approved for weekend outing", timestamp: new Date(Date.now() - 86400000 * 1).toISOString(), icon: "door" },
-      { id: 2, type: "complaint", description: "Plumbing complaint resolved", timestamp: new Date(Date.now() - 86400000 * 2).toISOString(), icon: "wrench" },
-      { id: 3, type: "mess", description: "Tapped in for lunch", timestamp: new Date(Date.now() - 3600000 * 3).toISOString(), icon: "utensils" },
-    ],
+    recentActivity: recentActivity.slice(0, 5),
     pendingActions: passes.filter(p => p.status === "pending").length > 0 ? ["Gate pass pending approval"] : [],
     messAttendanceThisWeek: messThisWeek.length,
-    activePasses: passes.filter(p => p.status === "approved").length,
+    activePasses: activeGatePasses.length,
+    activeGatePasses,
     pendingComplaints: complaints.filter(c => c.status !== "resolved").length,
     currentMonthFeeStatus: latestFee?.status ?? "pending",
     upcomingLeave: null,
@@ -139,7 +195,7 @@ router.get("/gate-summary", async (_req: Request, res: Response) => {
     pendingVerifications: passes.filter(p => p.status === "pending").length,
     tailgatingAlerts: tailgating.length,
     recentLogs: enrichedLogs,
-    activePasses: passes.filter(p => p.status === "approved").length,
+    activePasses: passes.filter(p => p.status === "approved" || p.status === "active").length,
   });
 });
 

@@ -12,4 +12,5 @@ export type GatePassUpdateStatus = typeof GatePassUpdateStatus[keyof typeof Gate
 export const GatePassUpdateStatus = {
   approved: 'approved',
   rejected: 'rejected',
+  active: 'active',
 } as const;

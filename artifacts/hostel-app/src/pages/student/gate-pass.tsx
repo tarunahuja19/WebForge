@@ -6,13 +6,14 @@ import {
   GatePassInput
 } from "@workspace/api-client-react";
 import { PageHeader, LoadingSkeleton, StatusBadge } from "@/components/shared";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MapPin, Clock, Calendar, QrCode, Plus } from "lucide-react";
+import { MapPin, Clock, Calendar, QrCode, Plus, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { GatePassCard } from "@/components/GatePassCard";
 
 export default function StudentGatePass() {
   const { user } = useAuth();
@@ -22,7 +23,8 @@ export default function StudentGatePass() {
   // Form state
   const [destination, setDestination] = useState("");
   const [purpose, setPurpose] = useState("");
-  const [expectedReturn, setExpectedReturn] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [returnTime, setReturnTime] = useState("");
 
   const { data: passes, isLoading, refetch } = useListGatePasses({
     studentId: user?.id
@@ -32,15 +34,22 @@ export default function StudentGatePass() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!destination || !purpose || !expectedReturn) {
+    if (!destination || !purpose || !returnDate || !returnTime) {
       toast({ title: "Validation Error", description: "All fields are required", variant: "destructive" });
+      return;
+    }
+
+    // Combine date + time into ISO string
+    const combined = new Date(`${returnDate}T${returnTime}`);
+    if (isNaN(combined.getTime())) {
+      toast({ title: "Invalid Date/Time", description: "Please enter a valid return date and time.", variant: "destructive" });
       return;
     }
 
     const payload: GatePassInput = {
       destination,
       purpose,
-      expectedReturn: new Date(expectedReturn).toISOString(),
+      expectedReturn: combined.toISOString(),
     };
 
     createMutation.mutate({ data: payload }, {
@@ -49,10 +58,11 @@ export default function StudentGatePass() {
         setIsOpen(false);
         setDestination("");
         setPurpose("");
-        setExpectedReturn("");
+        setReturnDate("");
+        setReturnTime("");
         refetch();
       },
-      onError: (err) => {
+      onError: () => {
         toast({ title: "Error", description: "Failed to request gate pass.", variant: "destructive" });
       }
     });
@@ -60,8 +70,9 @@ export default function StudentGatePass() {
 
   if (isLoading) return <LoadingSkeleton />;
 
-  const activePasses = passes?.filter(p => p.status === 'approved') || [];
-  const pastPasses = passes?.filter(p => p.status !== 'approved') || [];
+  // Active passes: approved (inactive/grey) or active (green with timer)
+  const activePasses = passes?.filter(p => p.status === 'approved' || p.status === 'active') || [];
+  const pastPasses = passes?.filter(p => p.status !== 'approved' && p.status !== 'active') || [];
 
   return (
     <div className="space-y-6">
@@ -77,7 +88,7 @@ export default function StudentGatePass() {
               <DialogHeader>
                 <DialogTitle>Request Gate Pass</DialogTitle>
                 <DialogDescription>
-                  Submit a request to leave the campus. Approvals are usually processed within 2 hours.
+                  Submit a request to leave the campus. The warden will review your request and approve or reject it.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 pt-4">
@@ -100,13 +111,28 @@ export default function StudentGatePass() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="return">Expected Return Time</Label>
-                  <Input 
-                    id="return" 
-                    type="datetime-local" 
-                    value={expectedReturn}
-                    onChange={(e) => setExpectedReturn(e.target.value)}
-                  />
+                  <Label>Expected Return</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="return-date" className="text-xs text-muted-foreground">Date</Label>
+                      <Input 
+                        id="return-date" 
+                        type="date"
+                        value={returnDate}
+                        min={new Date().toISOString().split("T")[0]}
+                        onChange={(e) => setReturnDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="return-time" className="text-xs text-muted-foreground">Time</Label>
+                      <Input 
+                        id="return-time" 
+                        type="time"
+                        value={returnTime}
+                        onChange={(e) => setReturnTime(e.target.value)}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="flex justify-end pt-4">
                   <Button type="submit" disabled={createMutation.isPending}>
@@ -119,34 +145,18 @@ export default function StudentGatePass() {
         }
       />
 
-      {/* Active Pass Section */}
+      {/* Active/Approved Pass Section */}
       {activePasses.length > 0 && (
         <div className="mb-8">
           <h3 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
-            <QrCode className="h-5 w-5 text-primary" /> Active Passes
+            <Shield className="h-5 w-5 text-primary" /> My Gate Passes
+            <span className="text-xs font-normal text-muted-foreground ml-2">
+              (Grey = approved but not yet activated by guard · Green = active with 2hr countdown)
+            </span>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {activePasses.map(pass => (
-              <Card key={pass.id} className="border-primary/30 bg-primary/5 overflow-hidden">
-                <div className="h-2 w-full bg-primary" />
-                <CardContent className="p-6 flex gap-6 items-center">
-                  <div className="bg-white p-2 rounded-lg shadow-sm border border-border shrink-0 h-24 w-24 flex items-center justify-center">
-                    {/* Simulated QR Code */}
-                    <div className="grid grid-cols-5 grid-rows-5 gap-1 w-full h-full opacity-80">
-                      {Array.from({ length: 25 }).map((_, i) => (
-                        <div key={i} className={`bg-black rounded-sm ${Math.random() > 0.4 ? 'opacity-100' : 'opacity-0'}`} />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <h4 className="font-bold text-lg">{pass.destination}</h4>
-                    <p className="text-sm text-muted-foreground">{pass.purpose}</p>
-                    <div className="flex items-center gap-2 text-xs font-medium text-primary mt-2">
-                      <Clock className="h-3 w-3" /> Return by {new Date(pass.expectedReturn).toLocaleString()}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <GatePassCard key={pass.id} pass={pass} />
             ))}
           </div>
         </div>

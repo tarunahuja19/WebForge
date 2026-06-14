@@ -1749,12 +1749,21 @@ components:
           format: date-time
         status:
           type: string
-          enum: [pending, approved, rejected, expired, used]
+          enum: [pending, approved, rejected, expired, used, active]
         qrCode:
           type: ["string", "null"]
         wardenRemarks:
           type: ["string", "null"]
         approvedAt:
+          type: ["string", "null"]
+        activatedAt:
+          type: ["string", "null"]
+          format: date-time
+        studentRoll:
+          type: ["string", "null"]
+        studentRoom:
+          type: ["string", "null"]
+        studentDept:
           type: ["string", "null"]
         createdAt:
           type: string
@@ -1778,7 +1787,7 @@ components:
       properties:
         status:
           type: string
-          enum: [approved, rejected]
+          enum: [approved, rejected, active]
         wardenRemarks:
           type: string
 
@@ -2573,6 +2582,10 @@ components:
           type: string
         upcomingLeave:
           type: ["object", "null"]
+        activeGatePasses:
+          type: array
+          items:
+            $ref: "#/components/schemas/GatePass"
 
     WardenDashboardSummary:
       type: object
