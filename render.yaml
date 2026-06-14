@@ -6,7 +6,7 @@ services:
     region: singapore
     branch: main
     rootDir: .
-    buildCommand: "npx pnpm@11 install --frozen-lockfile && npx pnpm@11 --filter @workspace/api-server run build"
+    buildCommand: "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build"
     startCommand: "node artifacts/api-server/dist/index.mjs"
     envVars:
       - key: NODE_ENV
@@ -25,7 +25,7 @@ services:
     region: singapore
     branch: main
     rootDir: .
-    buildCommand: "npx pnpm@11 install --frozen-lockfile && npx pnpm@11 --filter @workspace/hostel-app run build"
+    buildCommand: "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/hostel-app run build"
     staticPublishPath: artifacts/hostel-app/dist/public
     routes:
       - type: rewrite
