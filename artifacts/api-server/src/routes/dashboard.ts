@@ -61,7 +61,7 @@ router.get("/student-summary", async (req: Request, res: Response) => {
     recentActivity.push({
       id: `c-${c.id}`,
       type: "complaint",
-      description: `Complaint: ${c.title} (${c.status})`,
+      description: `Complaint: ${c.description} (${c.status})`,
       timestamp: new Date(c.createdAt || Date.now()).toISOString(),
       icon: "wrench"
     });
@@ -71,7 +71,7 @@ router.get("/student-summary", async (req: Request, res: Response) => {
       id: `m-${m.id}`,
       type: "mess",
       description: `Tapped in for ${m.mealType}`,
-      timestamp: new Date(m.timestamp || Date.now()).toISOString(),
+      timestamp: new Date(m.tapInTime || Date.now()).toISOString(),
       icon: "utensils"
     });
   });
