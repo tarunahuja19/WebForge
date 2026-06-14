@@ -1,0 +1,5 @@
+{
+  "buildCommand": "pnpm --filter @workspace/hostel-app run build",
+  "outputDirectory": "artifacts/hostel-app/dist/public",
+  "cleanUrls": true
+}

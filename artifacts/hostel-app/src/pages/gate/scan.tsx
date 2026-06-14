@@ -14,10 +14,9 @@ export default function GateScan() {
   const [activationStatus, setActivationStatus] = useState<'idle' | 'activating' | 'activated' | 'error'>('idle');
   const { toast } = useToast();
 
-  // Fetch pass details when a pass id is searched
   const { data: pass, isLoading: isFetching, error: fetchError, refetch } = useGetGatePass(
     searchedId ?? 0,
-    { query: { enabled: searchedId !== null && searchedId > 0 } }
+    { query: { enabled: searchedId !== null && searchedId > 0 } as any }
   );
 
   const updateMutation = useUpdateGatePass();
